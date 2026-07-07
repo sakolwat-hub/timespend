@@ -1,0 +1,8 @@
+# ใช้ LF ทุกที่ (CI รันบน Linux) กันปัญหา line-ending ข้าม OS
+* text=auto eol=lf
+
+# ไฟล์ไบนารี — ห้าม normalize
+*.png binary
+*.jpg binary
+*.ico binary
+*.woff2 binary

@@ -1,0 +1,10 @@
+# Netlify — ลาก dist/ มาวางที่ app.netlify.com/drop หรือเชื่อม Git repo
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# SPA fallback (แอพหน้าเดียว) — ทุก path ที่ไม่ใช่ไฟล์จริงให้ชี้ index.html
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

@@ -1,0 +1,24 @@
+{
+  "name": "timespend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "แปลงการใช้เงินเป็นเวลาชีวิต — inspired by In Time",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --host",
+    "icons": "node scripts/gen-icons.mjs"
+  },
+  "dependencies": {
+    "idb": "^8.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "sharp": "^0.35.3",
+    "vite": "^6.0.7",
+    "vite-plugin-pwa": "^0.21.1"
+  }
+}
