@@ -7,10 +7,14 @@ export const defaultSettings = {
   mode: 'monthly', // 'monthly' | 'hourly'
   hourlyRate: 150, // บาท/ชม.
   monthlyIncome: 30000, // บาท/เดือน
+  costOfLiving: 20000, // ค่ากินอยู่/เดือน (ตัวกำหนดอัตราไหลของเวลา)
   workDaysPerWeek: 5,
   workHoursPerDay: 8,
   currency: 'THB',
-  theme: 'green' // green | cyan | amber | purple | pink
+  theme: 'green', // green | cyan | amber | purple | pink
+  drainEnabled: true, // นาฬิกาไหลลดเรียลไทม์
+  clockStartMs: null, // จุดอ้างอิงเวลาเริ่มไหล
+  initialBufferSeconds: null // เวลาตั้งต้นในกระเป๋า
 }
 
 export function loadSettings() {

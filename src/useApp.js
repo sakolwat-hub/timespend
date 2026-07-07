@@ -7,33 +7,15 @@ import {
   deleteTransaction,
   clearAllTransactions
 } from './lib/db'
-import { computeRate, moneyToSeconds } from './lib/time'
+import { lifeRate, moneyToSeconds, monthlyIncomeOf } from './lib/time'
 
-// hook หลักที่จัดการ settings + transactions + ยอดกระเป๋าเวลา
+// hook หลัก: settings + transactions + กระเป๋าเวลา (ไหลลดเรียลไทม์)
 export function useApp() {
   const [settings, setSettings] = useState(loadSettings)
   const [transactions, setTransactions] = useState([])
   const [goals, setGoals] = useState(loadGoals)
   const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    getAllTransactions()
-      .then((txs) => setTransactions(txs))
-      .finally(() => setLoading(false))
-  }, [])
-
-  // ใช้ธีมสีกับทั้งหน้า (รวม onboarding ที่อยู่นอก .app)
-  useEffect(() => {
-    document.documentElement.dataset.theme = settings.theme || 'green'
-  }, [settings.theme])
-
-  const rate = computeRate(settings)
-
-  // ยอดกระเป๋าเวลา = Σ(เติม) − Σ(ใช้)  — ไม่ลดเอง ลดเฉพาะตอนใช้เงิน
-  const balanceSeconds = transactions.reduce(
-    (sum, t) => sum + (t.type === 'earn' ? t.timeSeconds : -t.timeSeconds),
-    0
-  )
+  const [now, setNow] = useState(() => Date.now())
 
   function updateSettings(patch) {
     setSettings((prev) => {
@@ -43,14 +25,58 @@ export function useApp() {
     })
   }
 
+  useEffect(() => {
+    getAllTransactions()
+      .then((txs) => setTransactions(txs))
+      .finally(() => setLoading(false))
+  }, [])
+
+  // ใช้ธีมสีกับทั้งหน้า
+  useEffect(() => {
+    document.documentElement.dataset.theme = settings.theme || 'green'
+  }, [settings.theme])
+
+  // นาฬิกาเดินจริง (ไหลลดทุกวินาที)
+  useEffect(() => {
+    if (!settings.drainEnabled) return
+    const id = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(id)
+  }, [settings.drainEnabled])
+
+  const rate = lifeRate(settings) // บาท = ชีวิต 1 ชม.
+
+  // ตั้งจุดอ้างอิงครั้งแรก (ผู้ใช้เดิมที่ยังไม่มี anchor) + ล้างข้อมูลทดสอบเก่า
+  useEffect(() => {
+    if (loading || !settings.onboarded || settings.clockStartMs) return
+    const r = lifeRate(settings)
+    const buffer = r > 0 ? moneyToSeconds(monthlyIncomeOf(settings), r) : 0
+    clearAllTransactions().then(() => setTransactions([]))
+    updateSettings({ clockStartMs: Date.now(), initialBufferSeconds: buffer })
+  }, [loading, settings.onboarded, settings.clockStartMs])
+
+  // ยอดจากธุรกรรม (เติม − ใช้)
+  const txSeconds = transactions.reduce(
+    (sum, t) => sum + (t.type === 'earn' ? t.timeSeconds : -t.timeSeconds),
+    0
+  )
+
+  // เวลาที่ไหลไปตั้งแต่จุดอ้างอิง (เรียลไทม์)
+  const drainSeconds =
+    settings.drainEnabled && settings.clockStartMs
+      ? Math.max(0, (now - settings.clockStartMs) / 1000)
+      : 0
+
+  // ยอดกระเป๋าเวลา = ตั้งต้น + ธุรกรรม − ที่ไหลไป
+  const balanceSeconds = (settings.initialBufferSeconds || 0) + txSeconds - drainSeconds
+
   async function addEntry({ type, amount, category, note, essential }) {
     const tx = {
       id: crypto.randomUUID(),
-      type, // 'spend' | 'earn'
+      type,
       amount: Number(amount) || 0,
       timeSeconds: moneyToSeconds(Number(amount) || 0, rate),
       category: category || (type === 'earn' ? 'รายรับ' : 'อื่นๆ'),
-      essential: type === 'spend' ? !!essential : true, // จำเป็น=true / ฟุ่มเฟือย=false
+      essential: type === 'spend' ? !!essential : true,
       note: note || '',
       timestamp: Date.now()
     }
@@ -67,15 +93,21 @@ export function useApp() {
   async function resetAll() {
     await clearAllTransactions()
     setTransactions([])
+    updateSettings({ clockStartMs: Date.now(), initialBufferSeconds: 0 })
+  }
+
+  // เปิด/ปิดโหมดไหล โดยคง "ยอดปัจจุบัน" ไว้ (re-anchor กันเลขกระโดด)
+  function setDrainEnabled(enabled) {
+    updateSettings({
+      drainEnabled: enabled,
+      clockStartMs: Date.now(),
+      initialBufferSeconds: balanceSeconds - txSeconds
+    })
+    setNow(Date.now())
   }
 
   function addGoal({ name, price }) {
-    const goal = {
-      id: crypto.randomUUID(),
-      name: name || 'เป้าหมาย',
-      price: Number(price) || 0,
-      createdAt: Date.now()
-    }
+    const goal = { id: crypto.randomUUID(), name: name || 'เป้าหมาย', price: Number(price) || 0, createdAt: Date.now() }
     setGoals((prev) => {
       const next = [...prev, goal]
       saveGoals(next)
@@ -91,7 +123,6 @@ export function useApp() {
     })
   }
 
-  // นำเข้าข้อมูลสำรอง (แทนที่ของเดิมทั้งหมด)
   async function importData(data) {
     if (data.settings) updateSettings(data.settings)
     if (Array.isArray(data.goals)) {
@@ -105,7 +136,7 @@ export function useApp() {
     }
   }
 
-  // เวลาที่ใช้ไปวันนี้ (วินาที) — สำหรับแถบ "วันนี้ใช้ไป..."
+  // เวลาที่ใช้ (ฟุ่มเฟือย) ไปวันนี้
   const startOfToday = new Date()
   startOfToday.setHours(0, 0, 0, 0)
   const todaySpentSeconds = transactions
@@ -119,8 +150,10 @@ export function useApp() {
     goals,
     rate,
     balanceSeconds,
+    drainEnabled: !!settings.drainEnabled,
     todaySpentSeconds,
     updateSettings,
+    setDrainEnabled,
     addEntry,
     removeEntry,
     resetAll,

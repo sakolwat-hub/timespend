@@ -151,6 +151,23 @@ body {
   margin: 0;
 }
 
+.drain-dot {
+  color: var(--accent);
+  font-size: 8px;
+  margin-left: 8px;
+  vertical-align: middle;
+  animation: blink 2s ease-in-out infinite;
+}
+@keyframes blink {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 1; }
+}
+
+.rate-sub {
+  color: var(--muted);
+  font-weight: 400;
+}
+
 .clock {
   font-size: clamp(30px, 11vw, 44px);
   font-weight: 500;

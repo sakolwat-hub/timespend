@@ -1,13 +1,21 @@
 import { useState } from 'react'
-import { computeRate } from '../lib/time'
+import { lifeRate, monthlyIncomeOf, moneyToSeconds } from '../lib/time'
 import RateForm from './RateForm'
 
 export default function Onboarding({ app }) {
   const [draft, setDraft] = useState(app.settings)
-  const canStart = computeRate(draft) > 0
+  const canStart = lifeRate(draft) > 0
 
   function start() {
-    app.updateSettings({ ...draft, onboarded: true })
+    // เริ่มด้วยบัฟเฟอร์ = เงินเดือน 1 รอบ (เหมือนเพิ่งได้เงินเดือน)
+    const r = lifeRate(draft)
+    const buffer = r > 0 ? moneyToSeconds(monthlyIncomeOf(draft), r) : 0
+    app.updateSettings({
+      ...draft,
+      onboarded: true,
+      clockStartMs: Date.now(),
+      initialBufferSeconds: buffer
+    })
   }
 
   return (

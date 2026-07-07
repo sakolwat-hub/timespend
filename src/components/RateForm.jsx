@@ -1,8 +1,9 @@
-import { computeRate, formatMoney } from '../lib/time'
+import { lifeRate, incomeDays, formatMoney } from '../lib/time'
 
-// ฟอร์มตั้งค่าอัตราแลก ใช้ร่วมกันทั้งหน้า Onboarding และ Settings
+// ฟอร์มตั้งค่า ใช้ร่วมกันทั้ง Onboarding และ Settings
 export default function RateForm({ draft, setDraft }) {
-  const rate = computeRate(draft)
+  const rate = lifeRate(draft)
+  const days = incomeDays(draft)
 
   function set(patch) {
     setDraft((prev) => ({ ...prev, ...patch }))
@@ -26,59 +27,59 @@ export default function RateForm({ draft, setDraft }) {
       </div>
 
       {draft.mode === 'monthly' ? (
-        <>
-          <label className="field">
-            <span>เงินเดือน (บาท)</span>
-            <input
-              type="text"
-              inputMode="numeric"
-              value={draft.monthlyIncome}
-              onChange={(e) =>
-                set({ monthlyIncome: Number(e.target.value.replace(/[^0-9]/g, '')) || 0 })
-              }
-            />
-          </label>
-          <div className="field-row">
-            <label className="field">
-              <span>วันทำงาน/สัปดาห์</span>
-              <input
-                type="text"
-                inputMode="numeric"
-                value={draft.workDaysPerWeek}
-                onChange={(e) =>
-                  set({ workDaysPerWeek: Number(e.target.value.replace(/[^0-9]/g, '')) || 0 })
-                }
-              />
-            </label>
-            <label className="field">
-              <span>ชม./วัน</span>
-              <input
-                type="text"
-                inputMode="numeric"
-                value={draft.workHoursPerDay}
-                onChange={(e) =>
-                  set({ workHoursPerDay: Number(e.target.value.replace(/[^0-9]/g, '')) || 0 })
-                }
-              />
-            </label>
-          </div>
-        </>
-      ) : (
         <label className="field">
-          <span>ค่าแรงต่อชั่วโมง (บาท)</span>
+          <span>เงินเดือน (บาท)</span>
           <input
             type="text"
             inputMode="numeric"
-            value={draft.hourlyRate}
+            value={draft.monthlyIncome}
             onChange={(e) =>
-              set({ hourlyRate: Number(e.target.value.replace(/[^0-9]/g, '')) || 0 })
+              set({ monthlyIncome: Number(e.target.value.replace(/[^0-9]/g, '')) || 0 })
             }
           />
         </label>
+      ) : (
+        <div className="field-row">
+          <label className="field">
+            <span>ค่าแรง/ชม. (บาท)</span>
+            <input
+              type="text"
+              inputMode="numeric"
+              value={draft.hourlyRate}
+              onChange={(e) =>
+                set({ hourlyRate: Number(e.target.value.replace(/[^0-9]/g, '')) || 0 })
+              }
+            />
+          </label>
+          <label className="field">
+            <span>ชม./วัน</span>
+            <input
+              type="text"
+              inputMode="numeric"
+              value={draft.workHoursPerDay}
+              onChange={(e) =>
+                set({ workHoursPerDay: Number(e.target.value.replace(/[^0-9]/g, '')) || 0 })
+              }
+            />
+          </label>
+        </div>
       )}
 
+      <label className="field">
+        <span>ค่ากินอยู่/เดือน (บาท) — ค่าใช้จ่ายที่ต้องมีเพื่อดำรงชีวิต</span>
+        <input
+          type="text"
+          inputMode="numeric"
+          value={draft.costOfLiving}
+          onChange={(e) =>
+            set({ costOfLiving: Number(e.target.value.replace(/[^0-9]/g, '')) || 0 })
+          }
+        />
+      </label>
+
       <div className="rate-result">
-        อัตราแลกของคุณ ≈ <b>{formatMoney(rate)} ฿/ชม.</b>
+        เงินเดือนซื้อชีวิตได้ ≈ <b>{days.toFixed(1)} วัน</b>
+        <span className="rate-sub"> · {formatMoney(rate)} ฿ = ชีวิต 1 ชม.</span>
       </div>
     </div>
   )

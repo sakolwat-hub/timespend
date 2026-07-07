@@ -2,16 +2,34 @@
 
 const HOURS_PER_WEEK_TO_MONTH = 52 / 12 // สัปดาห์ต่อเดือนโดยเฉลี่ย
 
-// คำนวณ "ค่าแรงต่อชั่วโมงจริง" (บาท/ชม.) จาก settings
-export function computeRate(settings) {
+// ชั่วโมงจริงใน 1 เดือน (โดยเฉลี่ย) — ใช้ให้ "เวลาไหล" ตรงกับเวลาจริง
+export const REAL_HOURS_PER_MONTH = (365.25 * 24) / 12 // ≈ 730.5
+
+// รายได้ต่อเดือน (บาท) — โหมดเงินเดือนใช้ตรงๆ, โหมดค่าแรงคำนวณจากชั่วโมงทำงาน
+export function monthlyIncomeOf(settings) {
   if (!settings) return 0
-  if (settings.mode === 'monthly') {
-    const daysPerMonth = (settings.workDaysPerWeek || 5) * HOURS_PER_WEEK_TO_MONTH
-    const hoursPerMonth = daysPerMonth * (settings.workHoursPerDay || 8)
-    if (!settings.monthlyIncome || hoursPerMonth <= 0) return 0
-    return settings.monthlyIncome / hoursPerMonth
+  if (settings.mode === 'hourly') {
+    const hoursPerMonth =
+      (settings.workDaysPerWeek || 5) * HOURS_PER_WEEK_TO_MONTH * (settings.workHoursPerDay || 8)
+    return (settings.hourlyRate || 0) * hoursPerMonth
   }
-  return settings.hourlyRate || 0
+  return settings.monthlyIncome || 0
+}
+
+// อัตราแลกชีวิต: เงินกี่บาท = ชีวิต 1 ชั่วโมง
+// อิง "ค่ากินอยู่" เพื่อให้การใช้ชีวิตเผาเวลาจริง 1:1 (เงินเดือน>ค่ากินอยู่ = มีส่วนเกินสะสม)
+export function lifeRate(settings) {
+  if (!settings) return 0
+  const col = settings.costOfLiving || monthlyIncomeOf(settings) || 0
+  if (col <= 0) return 0
+  return col / REAL_HOURS_PER_MONTH
+}
+
+// เงินเดือนซื้อเวลาได้กี่วัน (สำหรับแสดงผลตอนตั้งค่า)
+export function incomeDays(settings) {
+  const r = lifeRate(settings)
+  if (r <= 0) return 0
+  return moneyToSeconds(monthlyIncomeOf(settings), r) / 86400
 }
 
 // ราคาสินค้า (บาท) -> เวลา (วินาที) ตามอัตราแลก

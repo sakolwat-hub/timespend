@@ -69,6 +69,21 @@ export default function Settings({ app, onClose }) {
 
         <RateForm draft={draft} setDraft={setDraft} />
 
+        <div className="ess-toggle" style={{ marginBottom: 16 }}>
+          <button
+            className={app.drainEnabled ? 'active' : ''}
+            onClick={() => app.setDrainEnabled(true)}
+          >
+            เวลาไหลเรียลไทม์
+          </button>
+          <button
+            className={!app.drainEnabled ? 'active' : ''}
+            onClick={() => app.setDrainEnabled(false)}
+          >
+            นาฬิกานิ่ง
+          </button>
+        </div>
+
         <div className="theme-picker">
           <span className="theme-label">ธีมสี</span>
           <div className="theme-swatches">

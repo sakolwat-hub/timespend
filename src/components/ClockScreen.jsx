@@ -53,7 +53,10 @@ export default function ClockScreen({ app, onSpend, onEarn, onOpenSettings, onOp
       </header>
 
       <div className="clock-main">
-        <p className="clock-label">กระเป๋าเวลาคงเหลือ</p>
+        <p className="clock-label">
+          {neg ? 'หมดเวลา — เติมด่วน!' : 'กระเป๋าเวลาคงเหลือ'}
+          {app.drainEnabled && !neg && <span className="drain-dot" title="ไหลอยู่">●</span>}
+        </p>
 
         <div className="clock-wrap">
           <div className={`clock ${color} ${flow ? 'pulse' : ''}`}>
