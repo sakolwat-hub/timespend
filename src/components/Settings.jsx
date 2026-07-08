@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import RateForm from './RateForm'
+import WidgetGuide from './WidgetGuide'
 
 const THEMES = [
   { id: 'green', color: '#39ff6a' },
@@ -11,6 +12,7 @@ const THEMES = [
 
 export default function Settings({ app, onClose }) {
   const [draft, setDraft] = useState(app.settings)
+  const [showWidget, setShowWidget] = useState(false)
   const fileRef = useRef(null)
 
   // ปิดโดยไม่บันทึก — คืนธีมกลับเป็นค่าที่บันทึกไว้
@@ -61,6 +63,10 @@ export default function Settings({ app, onClose }) {
     }
   }
 
+  if (showWidget) {
+    return <WidgetGuide app={app} onClose={() => setShowWidget(false)} />
+  }
+
   return (
     <div className="sheet-backdrop" onClick={cancelClose}>
       <div className="sheet" onClick={(e) => e.stopPropagation()}>
@@ -107,6 +113,9 @@ export default function Settings({ app, onClose }) {
         </button>
 
         <div className="settings-tools">
+          <button className="btn-text" onClick={() => setShowWidget(true)}>
+            📱 สร้าง Widget iPhone (นับถอยหลังสด)
+          </button>
           <button className="btn-text" onClick={exportData}>
             ⭳ ส่งออกข้อมูล (สำรอง)
           </button>

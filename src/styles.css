@@ -557,6 +557,51 @@ body {
   padding-top: 4px;
 }
 
+/* ---------- Widget guide ---------- */
+.widget-intro {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.6;
+  margin: 0 0 14px;
+}
+.widget-intro b {
+  color: var(--accent);
+}
+.widget-steps {
+  margin: 0 0 14px;
+  padding-left: 20px;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.7;
+}
+.widget-steps b {
+  color: var(--text);
+  font-weight: 500;
+}
+.widget-code {
+  width: 100%;
+  background: var(--panel-2);
+  border: 0.5px solid var(--accent-deep);
+  border-radius: 10px;
+  color: var(--accent-dim);
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 12px;
+  margin-bottom: 12px;
+  resize: none;
+  outline: none;
+}
+.widget-note {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 12px 0 0;
+}
+.widget-note b {
+  color: var(--text);
+  font-weight: 500;
+}
+
 /* ---------- Theme picker ---------- */
 .theme-picker {
   display: flex;

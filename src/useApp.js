@@ -69,6 +69,11 @@ export function useApp() {
   // ยอดกระเป๋าเวลา = ตั้งต้น + ธุรกรรม − ที่ไหลไป
   const balanceSeconds = (settings.initialBufferSeconds || 0) + txSeconds - drainSeconds
 
+  // เวลา (epoch ms) ที่กระเป๋าจะถึงศูนย์ — ค่าคงที่ ใช้ทำ widget นับถอยหลัง
+  const zeroAtMs = settings.clockStartMs
+    ? settings.clockStartMs + ((settings.initialBufferSeconds || 0) + txSeconds) * 1000
+    : Date.now() + balanceSeconds * 1000
+
   async function addEntry({ type, amount, category, note, essential }) {
     const tx = {
       id: crypto.randomUUID(),
@@ -150,6 +155,7 @@ export function useApp() {
     goals,
     rate,
     balanceSeconds,
+    zeroAtMs,
     drainEnabled: !!settings.drainEnabled,
     todaySpentSeconds,
     updateSettings,
