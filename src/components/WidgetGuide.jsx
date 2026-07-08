@@ -8,13 +8,20 @@ const THEME_HEX = {
   pink: '#ff6fae'
 }
 
-// สร้างสคริปต์ Scriptable ที่นับถอยหลังสดทุกวินาที (WidgetKit timer style)
+// สร้างสคริปต์ Scriptable: โชว์ "X วัน HH:MM:SS" โดยส่วนเวลาเดินสดทุกวินาที
+// (WidgetKit timer โชว์ได้แค่ ชม:นาที:วิ จึงแยกเลขวันออกมา แล้วนับ ชม:นาที:วิ ของวันปัจจุบัน)
 function buildScript(deadlineMs, accent) {
   return [
     '// TimeSpend — iPhone widget (Scriptable)',
     '// เวลาจะหมดที่ (แก้ได้เมื่อ copy ใหม่จากแอพ):',
     'const DEADLINE = new Date(' + deadlineMs + ')',
     'const ACCENT = "' + accent + '"',
+    '',
+    'const now = new Date()',
+    'const rem = Math.max(0, Math.floor((DEADLINE.getTime() - now.getTime()) / 1000))',
+    'const days = Math.floor(rem / 86400)',
+    '// จุดที่เลขวันจะลด (ห่างไม่ถึง 24 ชม.) เพื่อให้ตัวนับโชว์ ชม:นาที:วิ ของวันนี้',
+    'const boundary = new Date(DEADLINE.getTime() - days * 86400 * 1000)',
     '',
     'const w = new ListWidget()',
     'w.backgroundColor = new Color("#05080b")',
@@ -23,10 +30,17 @@ function buildScript(deadlineMs, accent) {
     'const brand = w.addText("\\u25F7 TIMESPEND")',
     'brand.font = Font.mediumSystemFont(11)',
     'brand.textColor = new Color(ACCENT)',
-    'w.addSpacer(6)',
+    'w.addSpacer(8)',
     '',
-    'const timer = w.addDate(DEADLINE)',
-    'timer.applyTimerStyle()          // นับถอยหลังสดทุกวินาที',
+    'const row = w.addStack()',
+    'row.centerAlignContent()',
+    'const dText = row.addText(days + "\\u0E27\\u0E31\\u0E19 ")   // "45วัน "',
+    'dText.font = Font.boldSystemFont(30)',
+    'dText.textColor = new Color(ACCENT)',
+    'dText.shadowColor = new Color(ACCENT, 0.5)',
+    'dText.shadowRadius = 8',
+    'const timer = row.addDate(boundary)',
+    'timer.applyTimerStyle()          // ชม:นาที:วิ เดินสดทุกวินาที',
     'timer.font = Font.boldMonospacedSystemFont(30)',
     'timer.textColor = new Color(ACCENT)',
     'timer.shadowColor = new Color(ACCENT, 0.5)',
@@ -37,6 +51,7 @@ function buildScript(deadlineMs, accent) {
     'sub.font = Font.systemFont(9)',
     'sub.textColor = new Color("#4a7a56")',
     '',
+    'w.refreshAfterDate = boundary   // ให้ iOS รีเฟรชเลขวันเมื่อครบวัน',
     'if (config.runsInWidget) { Script.setWidget(w) } else { w.presentMedium() }',
     'Script.complete()'
   ].join('\n')
