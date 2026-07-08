@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import RateForm from './RateForm'
 import WidgetGuide from './WidgetGuide'
 import LuxuryWidgetGuide from './LuxuryWidgetGuide'
+import EssentialWidgetGuide from './EssentialWidgetGuide'
 
 const THEMES = [
   { id: 'green', color: '#39ff6a' },
@@ -15,6 +16,7 @@ export default function Settings({ app, onClose }) {
   const [draft, setDraft] = useState(app.settings)
   const [showWidget, setShowWidget] = useState(false)
   const [showLuxWidget, setShowLuxWidget] = useState(false)
+  const [showEssWidget, setShowEssWidget] = useState(false)
   const fileRef = useRef(null)
 
   // ปิดโดยไม่บันทึก — คืนธีมกลับเป็นค่าที่บันทึกไว้
@@ -71,6 +73,9 @@ export default function Settings({ app, onClose }) {
   if (showLuxWidget) {
     return <LuxuryWidgetGuide app={app} onClose={() => setShowLuxWidget(false)} />
   }
+  if (showEssWidget) {
+    return <EssentialWidgetGuide app={app} onClose={() => setShowEssWidget(false)} />
+  }
 
   return (
     <div className="sheet-backdrop" onClick={cancelClose}>
@@ -123,6 +128,9 @@ export default function Settings({ app, onClose }) {
           </button>
           <button className="btn-text" onClick={() => setShowLuxWidget(true)}>
             🟡 สร้าง Widget ฟุ่มเฟือย (วงแหวน %)
+          </button>
+          <button className="btn-text" onClick={() => setShowEssWidget(true)}>
+            🟢 สร้าง Widget จำเป็น (วงแหวน %)
           </button>
           <button className="btn-text" onClick={exportData}>
             ⭳ ส่งออกข้อมูล (สำรอง)

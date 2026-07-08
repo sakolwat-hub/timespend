@@ -155,7 +155,11 @@ export function useApp() {
   const weekLuxurySeconds = weekSpends
     .filter((t) => t.essential === false)
     .reduce((s, t) => s + t.timeSeconds, 0)
+  const weekEssentialSeconds = weekSpends
+    .filter((t) => t.essential !== false)
+    .reduce((s, t) => s + t.timeSeconds, 0)
   const luxuryPct = weekSpentSeconds > 0 ? Math.round((weekLuxurySeconds / weekSpentSeconds) * 100) : 0
+  const essentialPct = weekSpentSeconds > 0 ? Math.round((weekEssentialSeconds / weekSpentSeconds) * 100) : 0
 
   return {
     loading,
@@ -169,6 +173,8 @@ export function useApp() {
     todaySpentSeconds,
     luxuryPct,
     weekLuxurySeconds,
+    essentialPct,
+    weekEssentialSeconds,
     updateSettings,
     setDrainEnabled,
     addEntry,
