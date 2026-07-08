@@ -7,7 +7,7 @@ import {
   deleteTransaction,
   clearAllTransactions
 } from './lib/db'
-import { lifeRate, moneyToSeconds, monthlyIncomeOf } from './lib/time'
+import { lifeRate, moneyToSeconds, monthlyIncomeOf, startOfWeek } from './lib/time'
 
 // hook หลัก: settings + transactions + กระเป๋าเวลา (ไหลลดเรียลไทม์)
 export function useApp() {
@@ -148,6 +148,15 @@ export function useApp() {
     .filter((t) => t.type === 'spend' && t.timestamp >= startOfToday.getTime())
     .reduce((sum, t) => sum + t.timeSeconds, 0)
 
+  // สถิติฟุ่มเฟือยสัปดาห์นี้ (สำหรับ widget)
+  const weekStart = startOfWeek()
+  const weekSpends = transactions.filter((t) => t.type === 'spend' && t.timestamp >= weekStart)
+  const weekSpentSeconds = weekSpends.reduce((s, t) => s + t.timeSeconds, 0)
+  const weekLuxurySeconds = weekSpends
+    .filter((t) => t.essential === false)
+    .reduce((s, t) => s + t.timeSeconds, 0)
+  const luxuryPct = weekSpentSeconds > 0 ? Math.round((weekLuxurySeconds / weekSpentSeconds) * 100) : 0
+
   return {
     loading,
     settings,
@@ -158,6 +167,8 @@ export function useApp() {
     zeroAtMs,
     drainEnabled: !!settings.drainEnabled,
     todaySpentSeconds,
+    luxuryPct,
+    weekLuxurySeconds,
     updateSettings,
     setDrainEnabled,
     addEntry,
