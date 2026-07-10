@@ -169,9 +169,10 @@ body {
 }
 
 .clock {
-  font-size: clamp(30px, 11vw, 44px);
-  font-weight: 500;
+  font-size: clamp(44px, 16vw, 66px);
+  font-weight: 700;
   letter-spacing: 1px;
+  font-variant-numeric: tabular-nums;
   /* ไม่ใส่ transition กับ color/text-shadow — กันสีค้างเวลาเปลี่ยนธีม
      (Chromium ไม่ restart transition เมื่อ custom property เปลี่ยน) */
 }
@@ -639,7 +640,27 @@ body {
 .clock-wrap {
   position: relative;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.ymd {
+  font-size: clamp(18px, 6vw, 24px);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+.ymd.green {
+  color: var(--green);
+  text-shadow: 0 0 10px var(--accent-glow);
+}
+.ymd.yellow {
+  color: var(--yellow);
+  text-shadow: 0 0 10px rgba(255, 210, 62, 0.4);
+}
+.ymd.red {
+  color: var(--red);
+  text-shadow: 0 0 10px rgba(255, 82, 82, 0.4);
 }
 
 .clock.pulse {

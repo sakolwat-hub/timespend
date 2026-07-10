@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { breakdown, formatDuration, formatMoney } from '../lib/time'
+import { breakdownFull, formatDuration, formatMoney } from '../lib/time'
 
 // เลือกสีนาฬิกาตามยอดคงเหลือ (เขียว -> เหลือง -> แดง)
 function stateColor(balanceSeconds) {
@@ -13,7 +13,7 @@ function pad(n) {
 }
 
 export default function ClockScreen({ app, onSpend, onEarn, onOpenSettings, onOpenHistory, onOpenGoals }) {
-  const { d, h, m, s, neg } = breakdown(app.balanceSeconds)
+  const { years, months, days, h, m, s, neg } = breakdownFull(app.balanceSeconds)
   const color = stateColor(app.balanceSeconds)
   const recent = [...app.transactions].reverse().slice(0, 4)
 
@@ -59,16 +59,12 @@ export default function ClockScreen({ app, onSpend, onEarn, onOpenSettings, onOp
         </p>
 
         <div className="clock-wrap">
+          <div className={`ymd ${color}`}>
+            {neg && '−'}
+            {years}ปี {months}เดือน {days}วัน
+          </div>
           <div className={`clock ${color} ${flow ? 'pulse' : ''}`}>
-            {neg && <span className="clock-neg">−</span>}
-            <span className="clock-num">{d}</span>
-            <span className="clock-unit">d</span>
-            <span className="clock-num">{pad(h)}</span>
-            <span className="clock-unit">h</span>
-            <span className="clock-num">{pad(m)}</span>
-            <span className="clock-unit">m</span>
-            <span className="clock-num">{pad(s)}</span>
-            <span className="clock-unit">s</span>
+            {h}:{pad(m)}:{pad(s)}
           </div>
           {flow && (
             <div className={`flow ${flow.type}`} key={flow.key}>

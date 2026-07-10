@@ -51,6 +51,22 @@ export function breakdown(totalSeconds) {
   return { d, h, m, s, neg }
 }
 
+// แตกเวลาแบบเต็ม ปี/เดือน/วัน/ชม./นาที/วินาที (เดือน=30วัน, ปี=365วัน) — ให้ตรงกับ widget
+export function breakdownFull(totalSeconds) {
+  const neg = totalSeconds < 0
+  const t = Math.max(0, Math.floor(Math.abs(totalSeconds)))
+  const totalDays = Math.floor(t / 86400)
+  const years = Math.floor(totalDays / 365)
+  const months = Math.floor((totalDays - years * 365) / 30)
+  const days = totalDays - years * 365 - months * 30
+  let rem = t - totalDays * 86400
+  const h = Math.floor(rem / 3600)
+  rem -= h * 3600
+  const m = Math.floor(rem / 60)
+  const s = rem - m * 60
+  return { years, months, days, h, m, s, neg }
+}
+
 // ข้อความสั้น เช่น "1 วัน 6 ชม." — ใช้ในสรุปและ preview
 export function formatDuration(totalSeconds) {
   const { d, h, m, neg } = breakdown(totalSeconds)
