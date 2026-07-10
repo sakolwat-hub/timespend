@@ -419,6 +419,31 @@ body {
   border-color: var(--green);
   background: var(--panel-2);
 }
+.chip-add {
+  color: var(--green-dim);
+  border-style: dashed;
+}
+
+.custom-cat-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.custom-cat-input {
+  flex: 1;
+  background: var(--panel-2);
+  border: 0.5px solid var(--green);
+  border-radius: 20px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 14px;
+  padding: 10px 14px;
+  outline: none;
+}
+.custom-cat-row .btn {
+  padding: 0 20px;
+  white-space: nowrap;
+}
 
 .btn-confirm {
   width: 100%;

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { loadSettings, saveSettings } from './lib/settings'
 import { loadGoals, saveGoals } from './lib/goals'
+import { loadCategories, saveCategories } from './lib/categories'
 import {
   getAllTransactions,
   addTransaction,
@@ -14,6 +15,7 @@ export function useApp() {
   const [settings, setSettings] = useState(loadSettings)
   const [transactions, setTransactions] = useState([])
   const [goals, setGoals] = useState(loadGoals)
+  const [customCategories, setCustomCategories] = useState(loadCategories)
   const [loading, setLoading] = useState(true)
   const [now, setNow] = useState(() => Date.now())
 
@@ -111,6 +113,27 @@ export function useApp() {
     setNow(Date.now())
   }
 
+  // เพิ่มหมวดที่ผู้ใช้พิมพ์เอง (จำไว้ใช้ครั้งต่อไป)
+  function addCustomCategory(type, name) {
+    const n = (name || '').trim()
+    if (!n) return
+    setCustomCategories((prev) => {
+      const list = prev[type] || []
+      if (list.includes(n)) return prev
+      const next = { ...prev, [type]: [...list, n] }
+      saveCategories(next)
+      return next
+    })
+  }
+
+  function removeCustomCategory(type, name) {
+    setCustomCategories((prev) => {
+      const next = { ...prev, [type]: (prev[type] || []).filter((c) => c !== name) }
+      saveCategories(next)
+      return next
+    })
+  }
+
   function addGoal({ name, price }) {
     const goal = { id: crypto.randomUUID(), name: name || 'เป้าหมาย', price: Number(price) || 0, createdAt: Date.now() }
     setGoals((prev) => {
@@ -166,6 +189,9 @@ export function useApp() {
     settings,
     transactions,
     goals,
+    customCategories,
+    addCustomCategory,
+    removeCustomCategory,
     rate,
     balanceSeconds,
     zeroAtMs,
